@@ -1,6 +1,5 @@
-import PocketBase from "/dep/js-sdk-master/dist/pocketbase.es.js";
+import pb from "./pbInit.js";
 
-const pb = new PocketBase('http://127.0.0.1:8090');
 
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('loginForm'); // Assuming your form's ID is 'loginForm'

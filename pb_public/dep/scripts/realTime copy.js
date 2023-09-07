@@ -1,19 +1,47 @@
-import pb from "./pbInit.js";
+import PocketBase from "/dep/js-sdk-master/dist/pocketbase.es.js";
 
+
+const pb = new PocketBase("http://127.0.0.1:8090");
+
+// Store the current conversation ID for real-time management.
 let currentConversationId = null;
-let userMap = {};  // Mapping of userID -> username
 
-// Fetch all users and populate the userMap.
+// Function to handle incoming real-time messages.
+function handleIncomingMessage(e) {
+    // Check if the incoming message's conversation matches the currently selected one.
+    if (e.record.conversation === currentConversationId) {
+        displayIncomingMessage(e.record);
+    } else {
+        indicateNewMessageForConversation(e.record.conversation);
+        sendNotification('New Message', 'You have a new message in another conversation.');    }
+}
+//Function to handle new conversations.
+function handleIncomingConversation(e) {
+    const newConversation = e.record;
+    if (newConversation) {
+        addConversationToList(newConversation);
+        sendNotification('New Conversation', 'You have a new conversation.');
+    }
+}
+
+
+let userMap = {};  // This will store the mapping of userID -> username
+
 async function fetchUsers() {
-    const users = await pb.collection("users").getList(1, 50, {});
+    const users = await pb.collection("users").getList(1, 1000, {}); // Adjust the number accordingly
     users.items.forEach(user => {
         userMap[user.id] = user.username;
     });
 }
 
+// Call this function to populate the userMap
+fetchUsers();
+
+
 // Display a single incoming message.
-function displayIncomingMessage(message) {
+function displayIncomingMessage(message, username) {
     const messagesList = document.getElementById("messagesList");
+    
     const li = document.createElement("li");
     li.classList.add("p-2", "my-1", "rounded-lg", "bg-white");
     li.innerHTML = `
@@ -29,19 +57,14 @@ function displayIncomingMessage(message) {
     chatArea.scrollTop = chatArea.scrollHeight + 100;
 }
 
-function handleIncomingMessage(e) {
-    if (e.record.conversation === currentConversationId) {
-        displayIncomingMessage(e.record);
-    } else {
-        sendNotification('New Message', 'You have a new message in another conversation.');
+// Indicate a new message for a conversation in the conversation list.
+function indicateNewMessageForConversation(conversationId) {
+    const conversationElement = document.querySelector(`[data-conversation-id="${conversationId}"] #notif`);
+    if (conversationElement) {
+        conversationElement.textContent = "New messages";
     }
 }
-
-function handleIncomingConversation(e) {
-    addConversationToList(e.record);
-    sendNotification('New Conversation', 'You have a new conversation.');
-}
-
+// Update the list of conversations when a new one is created.
 function addConversationToList(conversation) {
     const id = pb.authStore.model.id;
     const ulElement = document.getElementById("conversationsList");
@@ -75,13 +98,22 @@ function addConversationToList(conversation) {
     ulElement.appendChild(li);
 }
 
+// Update the current conversation ID when switching conversations.
 function setCurrentConversation(conversationId) {
     currentConversationId = conversationId;
-    const conversationElement = document.querySelector(`[data-conversation-id="${conversationId}"] .notif`);
+    
+    // When a conversation is selected, clear its new messages indication.
+    const conversationElement = document.querySelector(`[data-conversation-id="${conversationId}"] #notif`);
     if (conversationElement) {
         conversationElement.textContent = "";
     }
 }
+
+// Subscribe to the entire messages collection.
+pb.collection('messages').subscribe('*', handleIncomingMessage);
+pb.collection('conversations').subscribe('*', handleIncomingConversation);
+
+export { setCurrentConversation, addConversationToList };
 
 function sendNotification(conversation, body) {
     if ('serviceWorker' in navigator) {
@@ -94,6 +126,7 @@ function sendNotification(conversation, body) {
     }
 }
 
+
 function requestNotificationPermission() {
     Notification.requestPermission().then(function(permission) {
         if (permission === 'granted') {
@@ -105,19 +138,7 @@ function requestNotificationPermission() {
     });
 }
 
-// Initialization code
-document.addEventListener('DOMContentLoaded', () => {
-    // Fetch user data
-    fetchUsers();
-
-    // Request notifications permission
-    document.getElementById('enableNotifications').addEventListener('click', function() {
-        requestNotificationPermission();
-    });
-
-    // Subscribe to PocketBase collections
-    pb.collection('messages').subscribe('*', handleIncomingMessage);
-    pb.collection('conversations').subscribe('*', handleIncomingConversation);
+// Example usage: Trigger the request when a user clicks a button
+document.getElementById('enableNotifications').addEventListener('click', function() {
+    requestNotificationPermission();
 });
-
-export { setCurrentConversation, addConversationToList };

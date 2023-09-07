@@ -14,7 +14,6 @@
         <div id="personalInfo" class="bg-gray-500 p-1 rounded-md h-10 flex justify-between">
             <img class="h-8 w-8 border border-gray-50 flex-none rounded-full" src="" alt="">
             <button id="createConversationBtn" class="text-gray-50">new</button>
-            <button id="logOut" class="text-red-400">log out</button>
             <button id="enableNotifications">Enable Notifications</button>
 
         </div>
@@ -29,23 +28,39 @@
 
       <!-- Main Content Area -->
       <div class="max-h-full" id="fullChat">
-        <div class="fixed top-0 left-80 right-0 bottom-16 p-2 bg-gray-300 overflow-y-scroll" id="chatArea">
+        <div class="fixed top-0 left-80 right-80 bottom-16 p-2 bg-gray-300 overflow-y-scroll" id="chatArea">
             <ul id="messagesList" role="list" class="my-2"></ul>
         </div>
 
         
-        <div class="fixed bottom-0 left-80 right-0 p-4 h-16 bg-gray-400">
+        <div class="fixed bottom-0 left-80 right-80 p-4 h-16 bg-gray-400">
             <input type="text" id="messageInput" class="rounded-lg w-4/5 mx-auto p-2" placeholder="Type a message...">
             <button id="sendMessageBtn" class="bg-blue-500 text-white p-2 w-1/6 rounded-lg">Send</button>
         </div>
                 
+      </div>
+
+      <!-- Sidebar -->
+
+      <div class="w-80 fixed right-0 p-2 bg-gray-700 h-screen overflow-y-auto">
+        <div class="bg-gray-500 p-1 rounded-md h-10 flex justify-between">
+            <button id="createTaskBtn" class="text-gray-50">new</button>
+            <button id="logOut" class="text-red-400">log out</button>
+
+        </div>
+
+        <ul
+          id="tasksList"
+          role="list"
+          class="divide-y-2 divide-gray-600 my-2"
+        ></ul>
       </div>
     </div>
 
     <script type="module" src="./dep/scripts/checkConnection.js"></script>
     <script type="module" src="./dep/scripts/createConversation.js"></script>
     <script type="module" src="./dep/scripts/realTime.js"></script>
-
+    <script type="module" src="./dep/scripts/listTasks.js"></script>
 
   </body>
 </html>
