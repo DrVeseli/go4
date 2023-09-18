@@ -4,7 +4,7 @@ import pb from "./pbInit.js";
 
 // Redirect if not authenticated
 if (!pb.authStore.isValid) {
-    window.location.href = BASE_URL;
+    window.location.href = "/";
 }
 
 let activeConversationId = localStorage.getItem('activeConversationId') || null;

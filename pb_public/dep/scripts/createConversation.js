@@ -1,10 +1,7 @@
 import pb from "./pbInit.js";
 
 
-document.getElementById("createConversationBtn").addEventListener("click", async () => {
-    const usersList = await fetchAllUsers();
-    displayUsersForSelection(usersList);
-});
+
 
 const id = pb.authStore.model.id;
 const filterQuery = `id != "${id}"`;
@@ -15,6 +12,11 @@ async function fetchAllUsers() {
         sort: '-created',
     });
 }
+
+document.getElementById("createConversationBtn").addEventListener("click", async () => {
+    const usersList = await fetchAllUsers();
+    displayUsersForSelection(usersList);
+});
 
 function displayUsersForSelection(users) {
     const conversationsList = document.getElementById("conversationsList");
